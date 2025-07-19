@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Costing Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for Inter font */
+        body {
+            font-family: "Inter", sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl mb-8">
+        <div class="flex justify-between items-start mb-6">
+            <div class="flex-grow text-center">
+                <h1 class="text-3xl font-bold text-gray-800">Product Costing Dashboard</h1>
+                <p class="text-sm text-gray-500 mt-2">
+                    User: <span id="userIdDisplay" class="font-mono text-blue-600">Not signed in</span>
+                </p>
+                <p id="authStatusMessage" class="text-sm text-gray-600 mt-1">
+                    Please sign in or register to save and retrieve your products.
+                </p>
+            </div>
+            <button id="signOutButton" onclick="signOutUser()"
+                class="px-4 py-2 rounded-md bg-gray-500 text-white text-sm font-semibold hover:bg-gray-600 transition duration-300 hidden ml-4">
+                Sign Out
+            </button>
+        </div>
+
+        <div id="authButtons" class="flex justify-center gap-4 mb-6">
+            <button id="showLoginButton" onclick="showSection('loginForm')"
+                class="px-6 py-3 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700 transition duration-300">
+                Login
+            </button>
+            <button id="showRegisterButton" onclick="showSection('registerForm')"
+                class="px-6 py-3 rounded-md bg-green-600 text-white font-semibold hover:bg-green-700 transition duration-300">
+                Register
+            </button>
+            <button id="signInGoogleButton" onclick="signInWithGoogle()"
+                class="px-6 py-3 rounded-md bg-red-600 text-white font-semibold hover:bg-red-700 transition duration-300">
+                Sign In with Google
+            </button>
+        </div>
+
+        <div id="appButtons" class="flex justify-center gap-4 mb-6 hidden">
+            <button id="dashboardButton" onclick="showSection('dashboard')"
+                class="px-6 py-3 rounded-md bg-blue-500 text-white font-semibold hover:bg-blue-600 transition duration-300">
+                Product Dashboard
+            </button>
+            <button id="addProductButton" onclick="showSection('addProductForm')"
+                class="px-6 py-3 rounded-md bg-green-500 text-white font-semibold hover:bg-green-600 transition duration-300">
+                Add New Product
+            </button>
+        </div>
+
+        <!-- Login Form Section -->
+        <div id="loginFormSection" class="section hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Login to Your Account</h2>
+            <form id="loginForm" class="grid grid-cols-1 gap-6 mb-8">
+                <div class="flex flex-col">
+                    <label for="loginEmail" class="text-gray-700 text-sm font-semibold mb-2">Email</label>
+                    <input type="email" id="loginEmail" placeholder="your@example.com"
+                        class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required>
+                </div>
+                <div class="flex flex-col">
+                    <label for="loginPassword" class="text-gray-700 text-sm font-semibold mb-2">Password</label>
+                    <input type="password" id="loginPassword" placeholder="********"
+                        class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required>
+                </div>
+                <button type="button" onclick="loginUser()"
+                    class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
+                    Login
+                </button>
+            </form>
+            <p class="text-center text-sm text-gray-600">
+                Don't have an account? <a href="#" onclick="showSection('registerForm')"
+                    class="text-blue-600 hover:underline">Register here</a>.
+            </p>
+        </div>
+
+        <!-- Register Form Section -->
+        <div id="registerFormSection" class="section hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Create New Account</h2>
+            <form id="registerForm" class="grid grid-cols-1 gap-6 mb-8">
+                <div class="flex flex-col">
+                    <label for="registerEmail" class="text-gray-700 text-sm font-semibold mb-2">Email</label>
+                    <input type="email" id="registerEmail" placeholder="your@example.com"
+                        class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        required>
+                </div>
+                <div class="flex flex-col">
+                    <label for="registerPassword" class="text-gray-700 text-sm font-semibold mb-2">Password</label>
+                    <input type="password" id="registerPassword" placeholder="********"
+                        class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        required>
+                </div>
+                <div class="flex flex-col">
+                    <label for="confirmPassword" class="text-gray-700 text-sm font-semibold mb-2">Confirm
+                        Password</label>
+                    <input type="password" id="confirmPassword" placeholder="********"
+                        class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        required>
+                </div>
+                <button type="button" onclick="registerUser()"
+                    class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-md hover:bg-green-700 transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75">
+                    Register
+                </button>
+            </form>
+            <p class="text-center text-sm text-gray-600">
+                Already have an account? <a href="#" onclick="showSection('loginForm')"
+                    class="text-blue-600 hover:underline">Login here</a>.
+            </p>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboardSection" class="section hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Your Products</h2>
+            <div id="productList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Products will be loaded here -->
+            </div>
+            <p id="noProductsMessage" class="col-span-full text-center text-gray-50 mt-4">No products added yet. Click
+                "Add New Product" to get started!</p>
+        </div>
+
+        <!-- Add/Edit Product Form Section -->
+        <div id="addProductFormSection" class="section hidden">
+            <h2 id="formTitle" class="text-2xl font-bold text-gray-800 mb-4">Add New Product</h2>
+            <form id="productForm" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <input type="hidden" id="productId">
+
+                <div class="flex flex-col md:col-span-2">
+                    <label for="productName" class="text-gray-700 text-sm font-semibold mb-2">Product Name</label>
+                    <input type="text" id="productName" placeholder="e.g., Custom Sticker Sheet"
+                        class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required>
+                </div>
+
+                <!-- Input: Paper Cost per Sheet -->
+                <div class="flex flex-col">
+                    <label for="paperCost" class="text-gray-700 text-sm font-semibold mb-2">Paper Cost per Sheet
+                        (₱)</label>
+                    <input type="number" id="paperCost" value="10.00" min="0" step="0.01"
+                        class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Input: Products per Sheet -->
+                <div class="flex flex-col">
+                    <label for="productsPerSheet" class="text-gray-700 text-sm font-semibold mb-2">Products per
+                        Sheet</label>
+                    <input type="number" id="productsPerSheet" value="4" min="1" step="1"
+                        class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Input: Print Cost per Sheet -->
+                <div class="flex flex-col">
+                    <label for="printCost" class="text-gray-700 text-sm font-semibold mb-2">Print Cost per Sheet
+                        (₱)</label>
+                    <input type="number" id="printCost" value="5.00" min="0" step="0.01"
+                        class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Input: Cut Cost per Product -->
+                <div class="flex flex-col">
+                    <label for="cutCost" class="text-gray-700 text-sm font-semibold mb-2">Cut Cost per Product
+                        (₱)</label>
+                    <input type="number" id="cutCost" value="1.00" min="0" step="0.01"
+                        class="p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Input: Labor Cost per Hour -->
+                <div class="flex flex-col">
+                    <label for="laborCostPerHour" class="text-gray-700 text-sm font-semibold mb-2">Labor Cost per Hour
+                        (₱)</label>
+                    <input type="number" id="laborCostPerHour" value="100.00" min="0" step="0.01"
+                        class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Input: Time per Product (minutes) -->
+                <div class="flex flex-col">
+                    <label for="timePerProduct" class="text-gray-700 text-sm font-semibold mb-2">Time per Product
+                        (minutes)</label>
+                    <input type="number" id="timePerProduct" value="2" min="0" step="0.1"
+                        class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Input: Overhead Percentage -->
+                <div class="flex flex-col">
+                    <label for="overheadPercentage" class="text-gray-700 text-sm font-semibold mb-2">Overhead
+                        (%)</label>
+                    <input type="number" id="overheadPercentage" value="10" min="0" step="0.1"
+                        class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Input: Profit Margin Percentage -->
+                <div class="flex flex-col">
+                    <label for="profitMarginPercentage" class="text-gray-700 text-sm font-semibold mb-2">Profit Margin
+                        (%)</label>
+                    <input type="number" id="profitMarginPercentage" value="20" min="0" step="0.1"
+                        class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </form>
+
+            <button id="saveProductButton" onclick="saveProduct()"
+                class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
+                Save Product
+            </button>
+        </div>
+
+        <!-- Costing Results Section (will be populated dynamically) -->
+        <div id="costingResultsSection" class="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200 hidden">
+            <h2 class="text-xl font-bold text-blue-800 mb-4">Costing Results for <span id="currentProductName"
+                    class="text-blue-900"></span></h2>
+            <p class="text-gray-700 text-lg mb-2">
+                <span class="font-semibold">Material Cost per Product:</span> <span id="materialCostPerProductResult"
+                    class="font-bold text-blue-700"></span>
+            </p>
+            <p class="text-gray-700 text-lg mb-2">
+                <span class="font-semibold">Creation Cost per Product:</span> <span id="creationCostPerProductResult"
+                    class="font-bold text-blue-700"></span>
+            </p>
+            <p class="text-gray-700 text-lg mb-2">
+                <span class="font-semibold">Total Cost per Product:</span> <span id="costPerProductResult"
+                    class="font-bold text-blue-700"></span>
+            </p>
+            <p class="text-gray-700 text-lg">
+                <span class="font-semibold">Suggested Selling Price:</span> <span id="sellingPriceResult"
+                    class="font-bold text-blue-700"></span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        console.log("Module script executed.");
+
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, getDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+        // Global Firebase variables
+        let app;
+        let db;
+        let auth;
+        let userId = null;
+        let productsCollectionRef;
+        let isFirebaseInitialized = false; // Flag to track Firebase initialization status
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqEzwtvtr-5XEdMqDZV16Sk99YTV44Xbk",
+            authDomain: "costing-a3c19.firebaseapp.com",
+            projectId: "costing-a3c19",
+            storageBucket: "costing-a3c19.firebasestorage.app",
+            messagingSenderId: "552775279399",
+            appId: "1:552775279399:web:49324bdb32dfab87233f02",
+            measurementId: "G-P5RG5129KZ"
+        };
+
+        // Initialize Firebase and set up authentication
+        async function initializeFirebase() {
+            try {
+                app = initializeApp(firebaseConfig);
+                const analytics = getAnalytics(app);
+
+                db = getFirestore(app);
+                auth = getAuth(app);
+                isFirebaseInitialized = true;
+
+                // Listen for auth state changes
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        const userName = user.email || user.displayName || user.uid; // Prioritize email, then display name
+                        document.getElementById('userIdDisplay').textContent = userName;
+                        document.getElementById('authStatusMessage').textContent = `Welcome, ${userName}!`;
+
+                        // Hide authentication forms and show app buttons
+                        document.getElementById('loginFormSection').classList.add('hidden');
+                        document.getElementById('registerFormSection').classList.add('hidden');
+                        document.getElementById('authButtons').classList.add('hidden');
+                        document.getElementById('appButtons').classList.remove('hidden');
+
+                        // Show authenticated UI elements
+                        document.getElementById('signOutButton').classList.remove('hidden');
+                        document.getElementById('dashboardButton').classList.remove('hidden');
+                        document.getElementById('addProductButton').classList.remove('hidden');
+                        document.getElementById('saveProductButton').disabled = false; // Enable save button
+
+                        // Set up the products collection reference for the authenticated user
+                        productsCollectionRef = collection(db, `artifacts/${firebaseConfig.projectId}/users/${userId}/products`);
+                        listenForProducts(); // Start listening for products once authenticated
+                        showSection('dashboard'); // Show dashboard after successful login
+                    } else {
+                        // User is signed out
+                        userId = null;
+                        document.getElementById('userIdDisplay').textContent = 'Not signed in';
+                        document.getElementById('authStatusMessage').textContent = 'Please sign in or register to save and retrieve your products.';
+
+                        // Show authentication forms and buttons
+                        document.getElementById('loginFormSection').classList.remove('hidden'); // Default to login form
+                        document.getElementById('registerFormSection').classList.add('hidden'); // Hide register form initially
+                        document.getElementById('authButtons').classList.remove('hidden');
+                        document.getElementById('appButtons').classList.add('hidden');
+
+                        // Hide authenticated UI elements
+                        document.getElementById('signOutButton').classList.add('hidden');
+                        document.getElementById('dashboardButton').classList.add('hidden');
+                        document.getElementById('addProductButton').classList.add('hidden');
+                        document.getElementById('saveProductButton').disabled = true; // Disable save button
+
+                        // Clear product list and hide sections when signed out
+                        document.getElementById('productList').innerHTML = '';
+                        document.getElementById('noProductsMessage').classList.remove('hidden');
+                        document.getElementById('dashboardSection').classList.remove('hidden'); // Show empty dashboard
+                        document.getElementById('addProductFormSection').classList.add('hidden');
+                        document.getElementById('costingResultsSection').classList.add('hidden');
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                console.error("Failed to initialize the application. Please check your Firebase configuration and network connection.");
+                document.getElementById('saveProductButton').disabled = true;
+                disablePersistenceButtons();
+                document.getElementById('userIdDisplay').textContent = 'Error connecting';
+                document.getElementById('authStatusMessage').textContent = 'Failed to connect to Firebase. Persistence disabled.';
+            }
+        }
+
+        /**
+         * Handles Google Sign-in using a popup.
+         */
+        async function signInWithGoogle() {
+            const provider = new GoogleAuthProvider();
+            try {
+                await signInWithPopup(auth, provider);
+                // onAuthStateChanged listener will handle UI updates
+            } catch (error) {
+                console.error("Error during Google Sign-in:", error);
+                let errorMessage = "Failed to sign in with Google. Please try again.";
+                if (error.code === 'auth/popup-closed-by-user') {
+                    errorMessage = "Sign-in popup was closed. Please try again.";
+                } else if (error.code === 'auth/cancelled-popup-request') {
+                    errorMessage = "Sign-in was cancelled. Please try again.";
+                } else if (error.code === 'auth/network-request-failed') {
+                    errorMessage = "Network error during sign-in. Check your internet connection.";
+                } else if (error.code === 'auth/unauthorized-domain') {
+                    errorMessage = "Firebase Error: Unauthorized domain. Please add your current domain (e.g., localhost or your website URL) to the 'Authorized domains' list in your Firebase project's Authentication settings.";
+                } else if (error.code === 'auth/account-exists-with-different-credential') {
+                    errorMessage = "An account already exists with this email using a different sign-in method. Please use the correct sign-in method or sign in with email/password first.";
+                }
+                console.error(errorMessage);
+            }
+        }
+        window.signInWithGoogle = signInWithGoogle; // Make globally accessible
+
+        /**
+         * Handles Email/Password Registration.
+         */
+        async function registerUser() {
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                console.error("Passwords do not match.");
+                return;
+            }
+            if (password.length < 6) {
+                console.error("Password should be at least 6 characters.");
+                return;
+            }
+
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                console.log("Registration successful! You are now signed in.");
+                // onAuthStateChanged listener will handle UI updates
+            } catch (error) {
+                console.error("Error during registration:", error);
+                let errorMessage = "Failed to register. Please try again.";
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = "This email address is already in use. Please try logging in or use a different email.";
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = "Invalid email address format.";
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = "Password is too weak. Please choose a stronger password.";
+                }
+                console.error(errorMessage);
+            }
+        }
+        window.registerUser = registerUser; // Make globally accessible
+
+        /**
+         * Handles Email/Password Login.
+         */
+        async function loginUser() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                console.log("Login successful! Welcome back.");
+                // onAuthStateChanged listener will handle UI updates
+            } catch (error) {
+                console.error("Error during login:", error);
+                let errorMessage = "Failed to login. Please check your email and password.";
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    errorMessage = "Invalid email or password.";
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = "Invalid email address format.";
+                } else if (error.code === 'auth/user-disabled') {
+                    errorMessage = "This account has been disabled.";
+                }
+                console.error(errorMessage);
+            }
+        }
+        window.loginUser = loginUser; // Make globally accessible
+
+        /**
+         * Handles user sign-out.
+         */
+        async function signOutUser() {
+            try {
+                await signOut(auth);
+                // onAuthStateChanged listener will handle UI updates
+                console.log("You have been signed out.");
+            } catch (error) {
+                console.error("Error during sign-out:", error);
+                console.error("Failed to sign out. Please try again.");
+            }
+        }
+        window.signOutUser = signOutUser; // Make globally accessible
+
+
+        /**
+         * Disables save/delete buttons when persistence is not available (e.g., before login).
+         */
+        function disablePersistenceButtons() {
+            document.getElementById('saveProductButton').disabled = true;
+            const deleteButtons = document.querySelectorAll('#productList button.bg-red-500');
+            deleteButtons.forEach(button => {
+                button.disabled = true;
+                button.classList.add('opacity-50', 'cursor-not-allowed');
+            });
+        }
+
+        /**
+         * Calculates the cost components for a given product data object.
+         * This function is now standalone and can be used for both form calculations and dashboard display.
+         * @param {Object} productData - The product object containing costing parameters.
+         * @returns {Object} An object with calculated costs: materialCostPerProduct, creationCostPerProduct, totalCostPerProduct, sellingPrice.
+         */
+        window.calculateProductCosts = (productData) => { // Changed to window property
+            const { paperCost, productsPerSheet, printCost, cutCost, laborCostPerHour, timePerProduct, overheadPercentage, profitMarginPercentage } = productData;
+
+            // Ensure valid numbers for calculations, default to 0 if NaN or null
+            const pc = parseFloat(paperCost) || 0;
+            const pps = parseInt(productsPerSheet) || 1; // Avoid division by zero
+            const prc = parseFloat(printCost) || 0;
+            const cc = parseFloat(cutCost) || 0;
+            const lcph = parseFloat(laborCostPerHour) || 0;
+            const tpp = parseFloat(timePerProduct) || 0;
+            const op = parseFloat(overheadPercentage) || 0;
+            const pmp = parseFloat(profitMarginPercentage) || 0;
+
+
+            // Calculate cost components per product
+            const paperCostPerProduct = pc / pps;
+            const printCostPerProduct = prc / pps;
+            const laborCostPerProduct = (lcph / 60) * tpp; // Convert hourly to per minute
+
+            // Calculate Material Cost per Product
+            const materialCostPerProduct = paperCostPerProduct + printCostPerProduct;
+
+            // Calculate Base Creation Cost per Product (direct labor + direct cut)
+            const baseCreationCostPerProduct = cc + laborCostPerProduct;
+
+            // Calculate base cost per product (materials + direct labor + direct cut)
+            const baseCostPerProduct = materialCostPerProduct + baseCreationCostPerProduct;
+
+            // Calculate overhead cost
+            const overheadCost = baseCostPerProduct * (op / 100);
+
+            // Calculate Creation Cost per Product (base creation + overhead)
+            const creationCostPerProduct = baseCreationCostPerProduct + overheadCost;
+
+            // Calculate total cost per product
+            const totalCostPerProduct = materialCostPerProduct + creationCostPerProduct;
+
+            // Calculate suggested selling price
+            const sellingPrice = totalCostPerProduct / (1 - (pmp / 100));
+
+            return {
+                materialCostPerProduct,
+                creationCostPerProduct,
+                totalCostPerProduct,
+                sellingPrice
+            };
+        };
+
+
+        /**
+         * Listens for real-time updates to the products collection and renders them.
+         */
+        function listenForProducts() {
+            if (!isFirebaseInitialized || !productsCollectionRef || !userId) {
+                console.warn("Firebase not initialized, products collection not set up, or user not logged in. Cannot listen for products.");
+                renderProductList([]); // Render empty list if not initialized or not logged in
+                return;
+            }
+
+            // Note: orderBy() is avoided as per instructions. Data will be sorted in memory.
+            onSnapshot(productsCollectionRef, (snapshot) => {
+                const products = [];
+                snapshot.forEach(doc => {
+                    products.push({ id: doc.id, ...doc.data() });
+                });
+                // Sort products by name for consistent display
+                products.sort((a, b) => a.name.localeCompare(b.name));
+                renderProductList(products);
+            }, (error) => {
+                console.error("Error fetching products:", error);
+                console.error("Failed to load products. Please check your connection and Firebase security rules.");
+            });
+        }
+
+        /**
+         * Renders the list of products in the dashboard.
+         * @param {Array<Object>} productsToRender - An array of product objects to display.
+         */
+        function renderProductList(productsToRender) {
+            const productListDiv = document.getElementById('productList');
+            const noProductsMessage = document.getElementById('noProductsMessage');
+
+            productListDiv.innerHTML = ''; // Clear existing list
+
+            if (productsToRender.length === 0) {
+                noProductsMessage.classList.remove('hidden'); // Show message if no products
+            } else {
+                noProductsMessage.classList.add('hidden'); // Hide message if products exist
+            }
+
+            productsToRender.forEach(product => {
+                // Calculate costs for display in the dashboard
+                const costs = window.calculateProductCosts(product); // Use window.calculateProductCosts
+
+                const productCard = document.createElement('div');
+                productCard.className = 'bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200 flex flex-col justify-between';
+                productCard.innerHTML = `
+                    <h3 class="text-lg font-semibold text-blue-800 mb-2">${product.name}</h3>
+                    <p class="text-sm text-gray-700">Material Cost: ₱${costs.materialCostPerProduct.toFixed(2)}</p>
+                    <p class="text-sm text-gray-700">Creation Cost: ₱${costs.creationCostPerProduct.toFixed(2)}</p>
+                    <p class="text-sm text-gray-700 font-semibold">Total Cost: ₱${costs.totalCostPerProduct.toFixed(2)}</p>
+                    <p class="text-sm text-green-700 font-bold mb-4">Selling Price: ₱${costs.sellingPrice.toFixed(2)}</p>
+                    <div class="flex justify-end gap-2 mt-auto">
+                        <button onclick="window.editProduct('${product.id}')" class="px-3 py-1 bg-blue-500 text-white text-sm rounded-md hover:bg-blue-600 transition duration-300">Edit</button>
+                        <button onclick="window.confirmDeleteProduct('${product.id}', '${product.name}')" class="px-3 py-1 bg-red-500 text-white text-sm rounded-md hover:bg-red-600 transition duration-300">Delete</button>
+                    </div>
+                `;
+                productListDiv.appendChild(productCard);
+            });
+
+            // Re-apply disabled state to delete buttons if Firebase is not initialized or user not logged in
+            if (!isFirebaseInitialized || !userId) {
+                disablePersistenceButtons();
+            }
+        }
+
+        /**
+         * Displays a specific section of the UI.
+         * @param {string} sectionId - The ID of the section to display ('dashboard', 'addProductForm', 'costingResults', 'loginForm', 'registerForm').
+         */
+        function showSection(sectionId) {
+            // Hide all main content sections first
+            document.getElementById('dashboardSection').classList.add('hidden');
+            document.getElementById('addProductFormSection').classList.add('hidden');
+            document.getElementById('costingResultsSection').classList.add('hidden');
+            document.getElementById('loginFormSection').classList.add('hidden');
+            document.getElementById('registerFormSection').classList.add('hidden');
+
+            // Show the requested section
+            if (sectionId === 'addProductForm') {
+                if (!userId) {
+                    console.info("Please sign in to add products.");
+                    document.getElementById('loginFormSection').classList.remove('hidden'); // Show login if not signed in
+                    return;
+                }
+                document.getElementById('formTitle').textContent = 'Add New Product';
+                document.getElementById('productId').value = ''; // Clear hidden ID for new product
+                clearForm();
+                document.getElementById('addProductFormSection').classList.remove('hidden');
+            } else if (sectionId === 'dashboard') {
+                document.getElementById('dashboardSection').classList.remove('hidden');
+                if (isFirebaseInitialized && userId) {
+                    listenForProducts(); // This will trigger renderProductList
+                } else {
+                    renderProductList([]); // Show empty list if not connected to Firebase or not logged in
+                }
+            } else if (sectionId === 'costingResults') {
+                document.getElementById('costingResultsSection').classList.remove('hidden');
+            } else if (sectionId === 'loginForm') {
+                document.getElementById('loginFormSection').classList.remove('hidden');
+            } else if (sectionId === 'registerForm') {
+                document.getElementById('registerFormSection').classList.remove('hidden');
+            }
+        }
+        window.showSection = showSection; // Make globally accessible
+
+        /**
+         * Clears all input fields in the product form.
+         */
+        function clearForm() {
+            document.getElementById('productName').value = '';
+            document.getElementById('paperCost').value = '10.00';
+            document.getElementById('productsPerSheet').value = '4';
+            document.getElementById('printCost').value = '5.00';
+            document.getElementById('cutCost').value = '1.00';
+            document.getElementById('laborCostPerHour').value = '100.00';
+            document.getElementById('timePerProduct').value = '2';
+            document.getElementById('overheadPercentage').value = '10';
+            document.getElementById('profitMarginPercentage').value = '20';
+            document.getElementById('productId').value = ''; // Ensure ID is cleared for new product
+            document.getElementById('costingResultsSection').classList.add('hidden'); // Hide results when form is cleared
+        }
+
+        /**
+         * Populates the form fields with data from a given product.
+         * @param {Object} product - The product object to populate the form with.
+         */
+        function populateForm(product) {
+            document.getElementById('productId').value = product.id;
+            document.getElementById('productName').value = product.name;
+            document.getElementById('paperCost').value = product.paperCost;
+            document.getElementById('productsPerSheet').value = product.productsPerSheet;
+            document.getElementById('printCost').value = product.printCost;
+            document.getElementById('cutCost').value = product.cutCost;
+            document.getElementById('laborCostPerHour').value = product.laborCostPerHour;
+            document.getElementById('timePerProduct').value = product.timePerProduct;
+            document.getElementById('overheadPercentage').value = product.overheadPercentage;
+            document.getElementById('profitMarginPercentage').value = product.profitMarginPercentage;
+            document.getElementById('formTitle').textContent = `Edit Product: ${product.name}`;
+            window.calculateCost(); // Recalculate cost for the loaded product
+        }
+
+        /**
+         * Saves a new product or updates an existing one in Firestore.
+         */
+        async function saveProduct() {
+            if (!isFirebaseInitialized || !userId || !productsCollectionRef) {
+                console.error("Please sign in to save products.");
+                return;
+            }
+
+            const productId = document.getElementById('productId').value;
+            const productName = document.getElementById('productName').value.trim();
+
+            if (!productName) {
+                console.error("Product Name cannot be empty.");
+                return;
+            }
+
+            const productData = {
+                name: productName,
+                paperCost: parseFloat(document.getElementById('paperCost').value),
+                productsPerSheet: parseInt(document.getElementById('productsPerSheet').value),
+                printCost: parseFloat(document.getElementById('printCost').value),
+                cutCost: parseFloat(document.getElementById('cutCost').value),
+                laborCostPerHour: parseFloat(document.getElementById('laborCostPerHour').value),
+                timePerProduct: parseFloat(document.getElementById('timePerProduct').value),
+                overheadPercentage: parseFloat(document.getElementById('overheadPercentage').value),
+                profitMarginPercentage: parseFloat(document.getElementById('profitMarginPercentage').value)
+            };
+
+            // Basic validation for numbers
+            for (const key in productData) {
+                if (typeof productData[key] === 'number' && isNaN(productData[key])) {
+                    console.error(`Please enter a valid number for ${key.replace(/([A-Z])/g, ' $1').toLowerCase()}.`);
+                    return;
+                }
+            }
+            if (productData.productsPerSheet <= 0) {
+                console.error("'Products per Sheet' must be greater than 0.");
+                return;
+            }
+
+
+            try {
+                if (productId) {
+                    // Update existing product
+                    await setDoc(doc(productsCollectionRef, productId), productData);
+                    console.log("Product updated successfully!");
+                } else {
+                    // Add new product
+                    await addDoc(productsCollectionRef, productData);
+                    console.log("Product added successfully!");
+                    clearForm(); // Clear form after adding new product
+                }
+                window.showSection('dashboard'); // Go back to dashboard after saving
+            } catch (error) {
+                console.error("Error saving product:", error);
+                console.error("Failed to save product. Please try again. Check your Firebase security rules.");
+            }
+        }
+        window.saveProduct = saveProduct; // Make globally accessible
+
+        /**
+         * Loads a product into the form for editing.
+         * @param {string} id - The ID of the product to edit.
+         */
+        async function editProduct(id) {
+            if (!isFirebaseInitialized || !userId || !productsCollectionRef) {
+                console.error("Please sign in to edit products.");
+                return;
+            }
+            try {
+                const docRef = doc(productsCollectionRef, id);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const product = { id: docSnap.id, ...docSnap.data() };
+                    populateForm(product);
+                    window.showSection('addProductForm'); // Show the form section
+                } else {
+                    console.error("Product not found.");
+                }
+            } catch (error) {
+                console.error("Error fetching product for edit:", error);
+                console.error("Failed to load product for editing. Check your Firebase security rules.");
+            }
+        }
+        window.editProduct = editProduct; // Make globally accessible
+
+        /**
+         * Confirms deletion of a product before proceeding.
+         * @param {string} id - The ID of the product to delete.
+         * @param {string} name - The name of the product for confirmation message.
+         */
+        function confirmDeleteProduct(id, name) {
+            if (!isFirebaseInitialized || !userId || !productsCollectionRef) {
+                console.error("Please sign in to delete products.");
+                return;
+            }
+            // Replacing modal confirmation with console log and direct deletion for simplicity
+            // In a real app, you might use a custom confirmation dialog (not alert/confirm)
+            console.warn(`Confirming deletion of "${name}".`);
+            window.deleteProduct(id);
+        }
+        window.confirmDeleteProduct = confirmDeleteProduct; // Make globally accessible
+
+        /**
+         * Deletes a product from Firestore.
+         * @param {string} id - The ID of the product to delete.
+         */
+        async function deleteProduct(id) {
+            if (!isFirebaseInitialized || !userId || !productsCollectionRef) {
+                console.error("Please sign in to delete products.");
+                return;
+            }
+            try {
+                await deleteDoc(doc(productsCollectionRef, id));
+                console.log("Product deleted successfully!");
+                // The onSnapshot listener will automatically re-render the list
+            } catch (error) {
+                console.error("Error deleting product:", error);
+                console.error("Failed to delete product. Please try again. Check your Firebase security rules.");
+            }
+        }
+        window.deleteProduct = deleteProduct; // Make globally accessible
+
+        /**
+         * Calculates the cost components for a given product data object.
+         * This function is now standalone and can be used for both form calculations and dashboard display.
+         * @param {Object} productData - The product object containing costing parameters.
+         * @returns {Object} An object with calculated costs: materialCostPerProduct, creationCostPerProduct, totalCostPerProduct, sellingPrice.
+         */
+        window.calculateProductCosts = (productData) => { // Changed to window property
+            const { paperCost, productsPerSheet, printCost, cutCost, laborCostPerHour, timePerProduct, overheadPercentage, profitMarginPercentage } = productData;
+
+            // Ensure valid numbers for calculations, default to 0 if NaN or null
+            const pc = parseFloat(paperCost) || 0;
+            const pps = parseInt(productsPerSheet) || 1; // Avoid division by zero
+            const prc = parseFloat(printCost) || 0;
+            const cc = parseFloat(cutCost) || 0;
+            const lcph = parseFloat(laborCostPerHour) || 0;
+            const tpp = parseFloat(timePerProduct) || 0;
+            const op = parseFloat(overheadPercentage) || 0;
+            const pmp = parseFloat(profitMarginPercentage) || 0;
+
+
+            // Calculate cost components per product
+            const paperCostPerProduct = pc / pps;
+            const printCostPerProduct = prc / pps;
+            const laborCostPerProduct = (lcph / 60) * tpp; // Convert hourly to per minute
+
+            // Calculate Material Cost per Product
+            const materialCostPerProduct = paperCostPerProduct + printCostPerProduct;
+
+            // Calculate Base Creation Cost per Product (direct labor + direct cut)
+            const baseCreationCostPerProduct = cc + laborCostPerProduct;
+
+            // Calculate base cost per product (materials + direct labor + direct cut)
+            const baseCostPerProduct = materialCostPerProduct + baseCreationCostPerProduct;
+
+            // Calculate overhead cost
+            const overheadCost = baseCostPerProduct * (op / 100);
+
+            // Calculate Creation Cost per Product (base creation + overhead)
+            const creationCostPerProduct = baseCreationCostPerProduct + overheadCost;
+
+            // Calculate total cost per product
+            const totalCostPerProduct = materialCostPerProduct + creationCostPerProduct;
+
+            // Calculate suggested selling price
+            const sellingPrice = totalCostPerProduct / (1 - (pmp / 100));
+
+            return {
+                materialCostPerProduct,
+                creationCostPerProduct,
+                totalCostPerProduct,
+                sellingPrice
+            };
+        };
+
+
+        /**
+         * Calculates the total cost per product and suggests a selling price based on current form inputs.
+         * Displays the results in the 'costingResultsSection' section of the HTML.
+         */
+        function calculateCost() {
+            try {
+                // Get input values from the form
+                const productName = document.getElementById('productName').value.trim();
+                const productData = {
+                    paperCost: parseFloat(document.getElementById('paperCost').value),
+                    productsPerSheet: parseInt(document.getElementById('productsPerSheet').value),
+                    printCost: parseFloat(document.getElementById('printCost').value),
+                    cutCost: parseFloat(document.getElementById('cutCost').value),
+                    laborCostPerHour: parseFloat(document.getElementById('laborCostPerHour').value),
+                    timePerProduct: parseFloat(document.getElementById('timePerProduct').value),
+                    overheadPercentage: parseFloat(document.getElementById('overheadPercentage').value),
+                    profitMarginPercentage: parseFloat(document.getElementById('profitMarginPercentage').value)
+                };
+
+                // Validate inputs
+                if (Object.values(productData).some(isNaN) || productData.productsPerSheet <= 0 || !productName) {
+                    document.getElementById('costingResultsSection').classList.add('hidden');
+                    return;
+                }
+
+                const costs = window.calculateProductCosts(productData); // Use window.calculateProductCosts
+
+                // Display results
+                document.getElementById('currentProductName').textContent = productName;
+                document.getElementById('materialCostPerProductResult').textContent = `₱${costs.materialCostPerProduct.toFixed(2)}`;
+                document.getElementById('creationCostPerProductResult').textContent = `₱${costs.creationCostPerProduct.toFixed(2)}`;
+                document.getElementById('costPerProductResult').textContent = `₱${costs.totalCostPerProduct.toFixed(2)}`;
+                document.getElementById('sellingPriceResult').textContent = `₱${costs.sellingPrice.toFixed(2)}`;
+                document.getElementById('costingResultsSection').classList.remove('hidden');
+
+            } catch (error) {
+                console.error("An error occurred during calculation:", error);
+                document.getElementById('costingResultsSection').classList.add('hidden'); // Hide results on error
+            }
+        }
+        window.calculateCost = calculateCost; // Make globally accessible
+
+        // Event listener for input changes to dynamically calculate cost
+        document.addEventListener('DOMContentLoaded', () => {
+            const formInputs = document.querySelectorAll('#productForm input');
+            formInputs.forEach(input => {
+                input.addEventListener('input', window.calculateCost);
+            });
+            // Initialize Firebase when the page loads
+            initializeFirebase();
+        });
+    </script>
+</body>
+
+</html>
